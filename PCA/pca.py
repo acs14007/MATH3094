@@ -34,10 +34,12 @@ def principle_component_analysis(_input_data, number_of_components: int):
     if not fast_covariance:
         _covariance_matrix = np.matmul(_input_data.T, _input_data) / _input_data.shape[0]
 
-    # Eigenvalues
+    # Get the eigenvalues
+    # Both of these lines result in the same thing for us
+    # The second is nicer since each component will have decreasing variability, the first does not guarantee this
+    # https://www.youtube.com/watch?v=rng04VJxUt4 He suggested using singular value composition instead of eig
     # eigenvalues, eigenvectors = np.linalg.eig(_covariance_matrix)
-    u, s, v = np.linalg.svd(_covariance_matrix)
-    eigenvectors = u
+    eigenvectors, s, v = np.linalg.svd(_covariance_matrix)
 
     weights = eigenvectors[:, :number_of_components]
 
