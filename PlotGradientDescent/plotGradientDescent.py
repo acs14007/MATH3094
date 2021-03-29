@@ -32,6 +32,7 @@ def mean_squared_error(actuals, *, predicted=None, predictors=None, linear_weigh
         except:
             print(actuals, predictors, linear_weights)
             warnings.warn('There was an error1')
+            raise FloatingPointError
             return np.inf
     else:
         raise ValueError
@@ -68,17 +69,17 @@ X = np.append(Xraw, np.ones([Xraw.shape[0], 1]), axis=1)
 
 
 # Set up my figure
-fig = plt.figure()
-ax = plt.axes(xlim=(0, 500), ylim=(0, 50))
-ax.set_xlabel('Engine Displacement')
-ax.set_ylabel('Miles Per Gallon')
-ax.scatter(Xraw, Y, color='m')
-line, = ax.plot([], [], lw=2, color='gold')
+# fig = plt.figure()
+# ax = plt.axes(xlim=(0, 500), ylim=(0, 50))
+# ax.set_xlabel('Engine Displacement')
+# ax.set_ylabel('Miles Per Gallon')
+# ax.scatter(Xraw, Y, color='m')
+# line, = ax.plot([], [], lw=2, color='gold')
 
 
-def init():
-    line.set_data([], [])
-    return line,
+# def init():
+#     line.set_data([], [])
+#     return line,
 
 
 step_size = np.array([0.00002, 0.01])
@@ -87,36 +88,82 @@ model_weights = np.array([1, 0], dtype=np.dtype(np.longdouble))
 
 iterations = []
 MSEs = []
-def animate(i):
-    global model_weights
-    model_weights -= step_size * get_gradient_linear(Y, X, model_weights)
-    # print(model_weights)
-    x = np.linspace(0, 500, 1000)
-    y = ((float(model_weights[0]) * x) + float(model_weights[1]))
-    # y = 25*np.sin(2 * np.pi * (x - 0.01 * i)) + 25
-    if i % 100 == 0:
-        print(i, model_weights)
-    line.set_data(x, y)
+# def animate(i):
+#     global model_weights
+#     model_weights -= step_size * get_gradient_linear(Y, X, model_weights)
+#     # print(model_weights)
+#     x = np.linspace(0, 500, 1000)
+#     y = ((float(model_weights[0]) * x) + float(model_weights[1]))
+#     # y = 25*np.sin(2 * np.pi * (x - 0.01 * i)) + 25
+#     if i % 100 == 0:
+#         print(i, model_weights)
+#     line.set_data(x, y)
+#
+#     iterations.append(i)
+#     MSEs.append(mean_squared_error(Y.flatten(), linear_weights=model_weights, predictors=X))
+#     return line,
 
-    iterations.append(i)
-    MSEs.append(mean_squared_error(Y.flatten(), linear_weights=model_weights, predictors=X))
-    return line,
-
-anim = animation.FuncAnimation(fig, animate, init_func=init, frames=number_of_steps, interval=4, blit=True)
+# anim = animation.FuncAnimation(fig, animate, init_func=init, frames=number_of_steps, interval=4, blit=True)
 
 # plt.show()
-anim.save('animation.mp4', writer='ffmpeg', fps=60)
+# anim.save('animation.mp4', writer='ffmpeg', fps=60)
 print('Done')
 
+# for i in range(number_of_steps):
+#     animate(i)
+#
+# plt.clf()
+# # Now we plot the MSE vs. iteration number
+# fig = plt.figure()
+# # ax = plt.axes(xlim=(0, np.max(iterations)), ylim=(0, np.log(1.1 * np.max(MSEs))))
+# ax = plt.axes(xlim=(0, np.max(iterations)), ylim=(0, 1.1 * np.max(MSEs)))
+# ax.set_xlabel('Number of Iterations')
+# ax.set_ylabel('Mean Squared Error')
+# ax.plot(iterations, MSEs, color='mediumspringgreen')
+# plt.show()
 
-plt.clf()
-# Now we plot the MSE vs. iteration number
+
+
+base_step_size = np.array([0.002, 1])
+list_of_step_sizes = [0.015, 0.001, 0.0001]
+list_of_step_sizes = np.linspace(0.01, 0.001, 100)
+out_step_sizes = []
+end_MSE = []
+
+j = 0
+
+for k in list_of_step_sizes:
+    print(k)
+    model_weights = np.array([1, 0], dtype=np.dtype(np.longdouble))
+    step_size = base_step_size * k
+    print(j, step_size)
+    try:
+        number_of_steps = int(10 * (1 / k))
+        for i in range(number_of_steps):
+            model_weights -= step_size * get_gradient_linear(Y, X, model_weights)
+            # print(model_weights)
+            x = np.linspace(0, 500, 1000)
+            y = ((float(model_weights[0]) * x) + float(model_weights[1]))
+            # y = 25*np.sin(2 * np.pi * (x - 0.01 * i)) + 25
+            # if i % 100 == 0:
+            #     print(i, model_weights)
+        end_MSE.append(mean_squared_error(Y.flatten(), linear_weights=model_weights, predictors=X))
+        out_step_sizes.append(k)
+        print(end_MSE, out_step_sizes)
+    except:
+        pass
+    finally:
+        j += 1
+
+
+
+# plt.clf()
 fig = plt.figure()
-ax = plt.axes(xlim=(0, np.max(iterations)), ylim=(0, np.log(1.1 * np.max(MSEs))))
-ax.set_xlabel('Number of Iterations')
-ax.set_ylabel('Logarithmic Mean Squared Error')
-ax.plot(iterations, np.log(MSEs), color='mediumspringgreen')
+# ax = plt.axes(xlim=(0, np.max(iterations)), ylim=(0, np.log(1.1 * np.max(MSEs))))
+# ax = plt.axes(xlim=(0, np.max(iterations)), ylim=(0, 1.1 * np.max(MSEs)))
+plt.xlabel('Step Sizes')
+plt.ylabel('Mean Squared Error')
+plt.title('Step Size vs. MSE with variable number of steps')
+plt.plot(out_step_sizes, end_MSE, color='mediumspringgreen')
 plt.show()
-
-
-# fig, (ax1, ax2) = plt.subplots(1, 2)
+print('Done')

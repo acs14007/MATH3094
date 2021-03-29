@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/MATH3094.iml" filepath="$PROJECT_DIR$/.idea/MATH3094.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Math-3094-Spring-2021-Class-Notes/.idea/Math-3094-Spring-2021-Class-Notes.iml" filepath="$PROJECT_DIR$/../Math-3094-Spring-2021-Class-Notes/.idea/Math-3094-Spring-2021-Class-Notes.iml" />
     </modules>
   </component>
 </project>

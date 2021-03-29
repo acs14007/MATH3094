@@ -56,8 +56,8 @@ def principle_component_analysis(_input_data, number_of_components: int):
         variance = std ** 2
         percentage_of_total_variance = variance * 100 / total_variability
         _cumulative_variance += percentage_of_total_variance
-        print(f'PCA component {i} has {np.round(percentage_of_total_variance, 2)}% of total variance which' +
-              f' explains {np.round(_cumulative_variance, 2)}% of total variance')
+        # print(f'PCA component {i} has {np.round(percentage_of_total_variance, 2)}% of total variance which' +
+        #       f' explains {np.round(_cumulative_variance, 2)}% of total variance')
     return components
 
 
@@ -91,6 +91,10 @@ if __name__ == '__main__':
     # I perform PCA on these two groups, the goal is to see how the total variance of each group of variables changes
     # It turns out that total variance of each of these sets sum to the total variance
 
+    # This works even with repeated columns
+    input_data = np.concatenate([input_data, input_data[:, -1].reshape(input_data.shape[0], 1)], axis=1)
+
+
 
     # input_data = normalize_data(input_data)
     stds_of_input_data = np.std(input_data, axis=0)
@@ -99,7 +103,10 @@ if __name__ == '__main__':
     print(variances_of_each_feature)
     print(total_variance_of_input_data)
 
-    set1 = principle_component_analysis(input_data[:, :3], 3)
+
+    index = 3
+
+    set1 = principle_component_analysis(input_data[:, :index], index)
     # set1 = normalize_data(set1)
     stds_set1 = np.std(set1, axis=0)
     variances_features_set1 = stds_set1 ** 2
@@ -107,10 +114,13 @@ if __name__ == '__main__':
     print(variances_features_set1)
     print(total_variance_set1)
 
-    set2 = principle_component_analysis(input_data[:, 3:], 2)
+    set2 = principle_component_analysis(input_data[:, index:], input_data.shape[1] - index)
     # set2 = normalize_data(set2)
     stds_set2 = np.std(set2, axis=0)
     variances_features_set2 = stds_set2 ** 2
     total_variance_set2 = np.sum(variances_features_set2)
     print(variances_features_set2)
     print(total_variance_set2)
+
+
+    print(total_variance_of_input_data - total_variance_set2 - total_variance_set1)
